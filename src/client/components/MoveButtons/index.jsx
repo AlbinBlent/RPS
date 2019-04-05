@@ -1,14 +1,30 @@
-import React, { Component } from "react";
-import "./MoveButtons.css";
+import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
+import Button from '@material-ui/core/Button'
 
-class MoveButtons extends Component {
-  render() {
-    return (
-      <button className="move-button" onClick={this.props.onClick}>
-        {this.props.value}
-      </button>
-    );
-  }
+const styles = theme => ({
+  button: {
+    margin: theme.spacing.unit,
+    width: '200px',
+  },
+  input: {
+    display: 'none',
+  },
+})
+
+const MoveButtons = props => {
+  const { classes } = props
+  return (
+    <Button
+      variant="contained"
+      color="secondary"
+      size="large"
+      className={classes.button}
+      onClick={props.onClick}
+    >
+      {props.value}
+    </Button>
+  )
 }
 
-export default MoveButtons;
+export default withStyles(styles)(MoveButtons)

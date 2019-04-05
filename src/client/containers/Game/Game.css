@@ -1,23 +1,74 @@
 .game {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  padding-left: 20%;
-  color: azure;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5rem;
+}
+
+.game-alternatives {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 360px;
 }
 
 .game-background {
-  position: absolute;
-  z-index: 1;
   left: 0;
   top: 0;
   bottom: 0;
   right: 0;
-  background-color: rgb(7, 6, 6);
+  background-color: rgb(255, 255, 255);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  display: flex;
-  flex-wrap: wrap;
   opacity: 1;
+}
+
+.render-img {
+  width: 1350px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.player-image {
+  display: inline-block;
+  height: 250px;
+  width: 250px;
+  margin: 10px;
+  border: 2px black solid;
+  text-align: left;
+}
+
+.secondplayer-image {
+  display: inline-block;
+  height: 250px;
+  width: 250px;
+  margin: 10px;
+  border: 2px black solid;
+  text-align: left;
+}
+
+.player {
+  margin-top: 1.5rem;
+  margin-left: 1.5rem;
+}
+
+.secplayer {
+  margin-top: 1.5rem;
+  margin-left: 1.5rem;
+}
+
+.p1 {
+  margin-top: 4rem;
+  margin-left: 4rem;
+}
+.p2 {
+  margin-top: 4rem;
+  margin-left: 4rem;
 }

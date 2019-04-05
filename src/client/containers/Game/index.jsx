@@ -1,91 +1,105 @@
-import React, { Component } from "react";
-import "./Game.css";
-import MoveButtons from "../../components/MoveButtons";
+import React, { useState } from 'react'
+import './Game.css'
+import MoveButtons from '../../components/MoveButtons/index'
+import GameLogic from './GameLogic'
+import RandomCpu from './CpuMove'
 
-/*
-const rock = require("../../../assets/rock.png");
-const paper = require("../../../assets/paper.png");
-const scissors = require("../../../assets/scissors.png");
-*/
+const rock = require('../../../assets/sten.png')
+const paper = require('../../../assets/papper.png')
+const scissors = require('../../../assets/sax.png')
+const p1 = require('../../../assets/p1.png')
+const p2 = require('../../../assets/p2.png')
 
-const initialState = {
-  currentGameState: "Welcome, make a move!",
-  gameAlternatives: [
-    { value: "Rock", name: "rock" },
-    { value: "Paper", name: "paper" },
-    { value: "Scissors", name: "scissors" }
-  ]
-};
+const Game = () => {
+  const [gameAlternatives] = useState([
+    { value: 'Rock', move: 'rock', img: rock },
+    { value: 'Paper', move: 'paper', img: paper },
+    { value: 'Scissors', move: 'scissors', img: scissors },
+  ])
 
-//Random CPU move
-const randomCpuMove = () => {
-  const moveList = ["rock", "paper", "scissors"];
-  return moveList[Math.floor(Math.random() * moveList.length)];
-};
+  const [playerImage, setPlayerImage] = useState()
+  const [secPlayerImage, setSecPlayerImage] = useState()
+  const [gameStarted, setGameStarted] = useState(false)
+  const [gameState, setGameState] = useState('Welcome, make a move!')
 
-//Get winner from player and cpu choice
-const getWinner = (playerChoice, computerChoice) => {
-  const gameRules = {
-    rock: "scissors",
-    scissors: "paper",
-    paper: "rock"
-  };
+  const [wins, setWins] = useState(0)
+  const [lost, setLost] = useState(0)
+  const [draw, setDraw] = useState(0)
 
-  if (playerChoice === computerChoice) {
-    return "draw";
-  }
-  if (computerChoice === gameRules[playerChoice]) {
-    return "win";
-  } else {
-    return "lost";
-  }
-};
+  const handleResult = (playerMove, secPlayerMove) => {
+    //Render secPlayer move:
+    setSecPlayerImage(secPlayerMove)
+    //Set gamestate of result
+    const result = GameLogic(playerMove, secPlayerMove)
+    setGameState(result)
 
-class Game extends Component {
-  constructor() {
-    super();
-    this.state = initialState;
-  }
-
-  onMoveSelection = move => {
-    const result = getWinner(move, randomCpuMove());
     switch (result) {
-      case "win":
-        this.setState({ currentGameState: "You are victorious!" });
-        break;
-      case "lost":
-        this.setState({ currentGameState: "Lost! - Please try again." });
-        break;
-      case "draw":
-        this.setState({ currentGameState: "Draw! - Give it another go." });
-        break;
+      case 'Winner, winner, chicken dinner!':
+        setWins(wins + 1)
+        break
+      case 'Lost, try again!':
+        setLost(lost + 1)
+        break
+      case 'Tie!':
+        setDraw(draw + 1)
+        break
       default:
     }
-  };
 
-  render() {
-    const { gameAlternatives, currentGameState } = this.state;
-    return (
-      <div>
-        <div className="game">
-          <h1>{currentGameState}</h1>
-          {gameAlternatives.map(gameAlternative => {
+    //Debug
+    console.log('p ' + playerMove)
+    console.log('x ' + secPlayerMove)
+    console.log('gs ' + result)
+  }
+
+  return (
+    <div className="game">
+      <h2 className="game-state">{gameState} </h2>
+      <div className="render-img">
+        <div className="player-image">
+          {gameStarted ? (
+            <img className="player" src={playerImage} alt="lol" />
+          ) : (
+            <img className="p1" src={p1} alt="lol" />
+          )}
+        </div>
+        <div className="secondplayer-image">
+          {gameStarted || <img className="p2" src={p2} alt="lol" />}
+          {secPlayerImage === 'rock' && (
+            <img className="secplayer " src={rock} alt="lol" />
+          )}
+          {secPlayerImage === 'paper' && (
+            <img className="secplayer " src={paper} alt="lol" />
+          )}
+          {secPlayerImage === 'scissors' && (
+            <img className="secplayer " src={scissors} alt="lol" />
+          )}
+        </div>
+        <div className="game-alternatives">
+          {gameAlternatives.map((gameAlternative, index) => {
             return (
               <MoveButtons
+                key={index}
+                value={gameAlternative.value}
                 className="move-button"
                 onClick={() => {
-                  this.onMoveSelection(gameAlternative.name);
+                  setGameStarted(true)
+                  handleResult(gameAlternative.move, RandomCpu())
+                  setPlayerImage(gameAlternative.img)
                 }}
-                value={gameAlternative.value}
-                alt={gameAlternative.value}
               />
-            );
+            )
           })}
         </div>
-        <span className="game-background" />
       </div>
-    );
-  }
+      <h3 className="result-counter">
+        <ul>
+          Wins: {wins} Lost: {lost} Ties: {draw}
+        </ul>
+      </h3>
+      <span className="game-background" />
+    </div>
+  )
 }
 
-export default Game;
+export default Game
