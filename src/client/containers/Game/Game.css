@@ -3,17 +3,17 @@
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  margin-top: 5rem;
+  align-items: left; /* center */
+  justify-content: left; /* center */
+  margin-top: 0rem;
 }
 
 .game-alternatives {
   position: fixed;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
-  margin-top: 360px;
+  margin-top: 330px; /* 360 */
 }
 
 .game-background {
@@ -33,7 +33,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: left; /* center */
 }
 
 .player-image {
@@ -42,7 +42,7 @@
   width: 250px;
   margin: 10px;
   border: 2px black solid;
-  text-align: left;
+  text-align: left; /* center */
 }
 
 .secondplayer-image {
@@ -51,7 +51,7 @@
   width: 250px;
   margin: 10px;
   border: 2px black solid;
-  text-align: left;
+  text-align: left; /* center */
 }
 
 .player {
