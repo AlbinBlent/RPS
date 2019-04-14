@@ -1,65 +1,106 @@
-'use strict'
+"use strict";
 //Initiation and dependencies
-var app = require('express')()
-var http = require('http').Server(app)
-var io = require('socket.io')(http)
+var app = require("express")();
+var http = require("http").Server(app);
+var io = require("socket.io")(http);
 
 //Server homepage
-app.get('/', function(req, res) {
-  res.status(200).send('nothing here..')
-  res.sendFile(__dirname + '/index.html')
-})
+app.get("/", function(req, res) {
+  res.status(200).send("nothing here..");
+  res.sendFile(__dirname + "/index.html");
+});
 
-var rooms = 1
-var players = []
-var gameState = []
+var rooms = 1;
+var players = [];
+var gameState = "";
 
-function Player(name, id, turn, move) {
-  this.name = name
-  this.move = move
-  this.id = id
-  this.turn = turn
+function Player(name, move, id, turn) {
+  this.name = name;
+  this.move = move;
+  this.id = id;
+  this.turn = turn;
 }
 
 //Looks for connections & creates a game.
-io.on('connection', function(socket) {
-  console.log(socket.id + ' user connected to lobby')
-  socket.on('disconnect', function() {
-    console.log(socket.id + ' user disconnected')
-    socket.broadcast.emit('playerDisconnected', { id: socket.id })
+io.on("connection", function(socket) {
+  console.log(socket.id + " user connected to lobby");
+  socket.on("disconnect", function() {
+    console.log(socket.id + " user disconnected");
+    //Removes player from players array on disconnect
+    socket.broadcast.emit("playerDisconnected", { id: socket.id });
     for (var i = 0; i < players.length; i++) {
       if (players[i].id === socket.id) {
-        players.splice(i, 1)
+        players.splice(i, 1);
       }
     }
-  })
+  });
 
-  socket.on('createGame', function(data) {
-    socket.join('room-' + rooms)
-    players.push(new Player(data.name, data.id))
-    socket.emit('messagePlayerOne', { p1: players[0] })
+  socket.on("createGame", function(data) {
+    socket.join("room-" + rooms);
+    players.push(new Player(data.name, data.move, data.id, data.turn));
+    socket.emit("playerOneData", { p1: players[0] });
     // socket.broadcast.to('room-1').emit('hostPlayer', { p1: players[0] })
-    console.log('New game created: ' + data.name + ' room-' + rooms)
-  })
+    console.log("New game created: " + data.name + " room-" + rooms);
+  });
 
-  socket.on('joinGame', function(data) {
-    var room = io.nsps['/'].adapter.rooms[data.room]
+  socket.on("joinGame", function(data) {
+    var room = io.nsps["/"].adapter.rooms[data.room];
     if (room && room.length === 1) {
-      socket.join(data.room)
-      //console.log(data.name + ' ' + data.id + '' + ' joined ' + data.room)
-      players.push(new Player(data.name, data.id, data.turn))
-      socket.broadcast.to(data.room).emit('newPlayer', { p2: players[1] })
-      socket.emit('messagePlayerTwo', { p2: players[1] })
+      socket.join(data.room);
+      console.log(data.name + " " + data.id + "" + " joined " + data.room);
+      players.push(new Player(data.name, data.move, data.id, data.turn));
+      // socket.broadcast.to(data.room).emit("newPlayer", { p2: players[1] });
+      socket.emit("playerTwoData", { p2: players[1] });
     } else {
-      socket.emit('err', { message: 'Room is full!' })
+      socket.emit("err", { message: "Room is full!" });
     }
-  })
-})
+  });
+
+  socket.on("playTurn", function(data) {
+    if (players[0].turn) {
+      players[0].turn = false;
+      players[1].turn = true;
+      players[0].move = data;
+      console.log("P1: " + players[0].move);
+      socket.emit("playerOneTurn", { p1: players[0] });
+      socket.broadcast.to("room-1").emit("playerTwoTurn", { p2: players[1] });
+    } else {
+      players[1].turn = false;
+      players[0].turn = true;
+      players[1].move = data;
+      console.log("P2: " + players[1].move);
+      socket.emit("playerTwoTurn", { p2: players[1] });
+      socket.broadcast.to("room-1").emit("playerOneTurn", { p1: players[0] });
+      gameState = GameLogic(players[0].move, players[1].move);
+      io.in("room-1").emit("gameResult", gameState);
+    }
+  });
+
+  const GameLogic = (playerOneTurn, playerTwoTurn) => {
+    const gameRules = {
+      rock: "scissors",
+      scissors: "paper",
+      paper: "rock"
+    };
+
+    if (playerOneTurn === playerTwoTurn) {
+      return "Tie!";
+    }
+    if (playerTwoTurn === gameRules[playerOneTurn]) {
+      return "P1: Winner, winner, chicken dinner!";
+    }
+    if (playerOneTurn === gameRules[playerTwoTurn]) {
+      return "P2: Winner, winner, chicken dinner!";
+    } else {
+      return "Lost, try again!";
+    }
+  };
+});
 
 //Start server
 http.listen(3001, function() {
-  console.log('listening on *:3001')
-})
+  console.log("listening on *:3001");
+});
 
 // socket.on('playTurn', function(data) {
 //     // } else {
@@ -123,20 +164,3 @@ http.listen(3001, function() {
 //   //   socket.broadcast.to(data.room).emit('result', data)
 //   // })
 // })
-
-// const GameLogic = (playerOneTurn, playerTwoTurn) => {
-//   const gameRules = {
-//     rock: 'scissors',
-//     scissors: 'paper',
-//     paper: 'rock',
-//   }
-
-//   if (playerOneTurn === playerTwoTurn) {
-//     return 'Tie!'
-//   }
-//   if (playerTwoTurn === gameRules[playerOneTurn]) {
-//     return 'Winner, winner, chicken dinner!'
-//   } else {
-//     return 'Lost, try again!'
-//   }
-// }

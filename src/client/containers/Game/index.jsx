@@ -1,75 +1,100 @@
-import React, { useState } from 'react'
-import './Game.css'
-import MoveButtons from '../../components/MoveButtons/index'
-import GameLogic from './GameLogic'
+import React, { useState } from "react";
+import "./Game.css";
+import MoveButtons from "../../components/MoveButtons/index";
+import GameLogic from "./GameLogic";
 //import RandomCpu from './CpuMove'
-import io from 'socket.io-client'
+import io from "socket.io-client";
 
-const rock = require('../../../assets/sten.png')
-const paper = require('../../../assets/papper.png')
-const scissors = require('../../../assets/sax.png')
-const p1 = require('../../../assets/p1.png')
-const p2 = require('../../../assets/p2.png')
+const rock = require("../../../assets/sten.png");
+const paper = require("../../../assets/papper.png");
+const scissors = require("../../../assets/sax.png");
+const p1 = require("../../../assets/p1.png");
+const p2 = require("../../../assets/p2.png");
 
 //Server
-var socket = io('http://localhost:3001/', { forceNew: true })
+var socket = io("http://localhost:3001/", { forceNew: true });
 
 const Game = () => {
   const createGame = () => {
-    socket.emit('createGame', { name: 'robin', id: socket.id })
-  }
-
-  socket.on('messagePlayerOne', resp => {
-    setPlayers(resp.p1.name)
-  })
-
-  socket.on('messagePlayerTwo', resp => {
-    setPlayers(resp.p2.name)
-  })
+    socket.emit("createGame", {
+      name: "robin",
+      move: null,
+      id: socket.id,
+      turn: true
+    });
+  };
 
   const joinGame = () => {
-    socket.emit('joinGame', {
-      name: 'albin',
-      room: 'room-1',
+    socket.emit("joinGame", {
+      name: "albin",
+      room: "room-1",
       id: socket.id,
-      turn: true,
-    })
-    socket.on('err', function(data) {
-      alert(data.message)
-    })
-  }
+      turn: false
+    });
+    socket.on("err", function(data) {
+      alert(data.message);
+    });
+  };
+
+  socket.on("playerOneData", resp => {
+    setPlayerNames(resp.p1.name);
+    setPlayerTurn(resp.p1.turn);
+  });
+
+  socket.on("playerTwoData", resp => {
+    setPlayerNames(resp.p2.name);
+    setPlayerTurn(resp.p2.turn);
+  });
 
   //Add UI message element to display room info for other player.
-  socket.on('newPlayer', resp => {
-    setMessage(resp.p2.name)
-    setPlayerTurn(resp.p2.turn)
+  socket.on("newPlayer", resp => {
+    //setMessage(resp.p2.name);
+    ///setPlayerTurn(resp.p2.turn);
     console.log(
       `A new player: ${resp.p2.name} joined ${resp.p2.room} with id: ${
         resp.p2.id
-      }`,
-    )
-  })
-  socket.on('playerDisconnected', resp => {
-    console.log(`User with id: ${resp.id} disconnected..`)
-  })
+      }`
+    );
+  });
+
+  socket.on("playerDisconnected", resp => {
+    console.log(`User with id: ${resp.id} disconnected..`);
+  });
+
+  const _playTurn = move => {
+    socket.emit("playTurn", move);
+  };
+
+  socket.on("playerOneTurn", resp => {
+    setPlayerTurn(resp.p1.turn);
+  });
+  socket.on("playerTwoTurn", resp => {
+    setPlayerTurn(resp.p2.turn);
+  });
+
+  socket.on("gameResult", resp => {
+    setMessage(resp);
+  });
 
   //States
   const [gameAlternatives] = useState([
-    { value: 'Rock', move: 'rock', img: rock },
-    { value: 'Paper', move: 'paper', img: paper },
-    { value: 'Scissors', move: 'scissors', img: scissors },
-  ])
+    { value: "Rock", move: "rock", img: rock },
+    { value: "Paper", move: "paper", img: paper },
+    { value: "Scissors", move: "scissors", img: scissors }
+  ]);
+
   ///MP
-  const [players, setPlayers] = useState()
-  const [message, setMessage] = useState()
+  const [playerNames, setPlayerNames] = useState();
+  const [players, setPlayers] = useState();
+  const [message, setMessage] = useState();
   /// SP
-  const [playerOne, setPlayerOne] = useState()
-  const [imgPlayerOne, setImgPlayerOne] = useState()
-  const [playerTwo, setPlayerTwo] = useState('')
-  const [imgPlayerTwo, setImgPlayerTwo] = useState()
-  const [gameStarted, setGameStarted] = useState(false)
-  const [playerTurn, setPlayerTurn] = useState()
-  const [gameState, setGameState] = useState()
+  const [playerOne, setPlayerOne] = useState();
+  const [imgPlayerOne, setImgPlayerOne] = useState();
+  const [playerTwo, setPlayerTwo] = useState("");
+  const [imgPlayerTwo, setImgPlayerTwo] = useState();
+  const [gameStarted, setGameStarted] = useState(false);
+  const [playerTurn, setPlayerTurn] = useState();
+  const [gameState, setGameState] = useState();
   // const [result, setResult] = useState(false)
   // const [wins, setWins] = useState(0)
   // const [lost, setLost] = useState(0)
@@ -77,13 +102,13 @@ const Game = () => {
 
   // const handleResult = (playerMove, secPlayerMove) => {
   const handleResult = () => {
-    const p1state = playerOne
-    const p2state = playerTwo
+    const p1state = playerOne;
+    const p2state = playerTwo;
     //Render secPlayer move:
     //setImgPlayerTwo(secPlayerMove)
     //Set gamestate of result
-    const result = GameLogic(p1state, p2state)
-    socket.emit('gameResult', result)
+    const result = GameLogic(p1state, p2state);
+    socket.emit("gameResult", result);
     // setGameState(result)
 
     // switch (result) {
@@ -98,19 +123,20 @@ const Game = () => {
     //     break
     //   default:
     // }
-  }
+  };
 
   return (
     <div className="game">
       <button onClick={joinGame}>JOIN GAME</button>
       <button onClick={createGame}>CREATE GAME</button>
       <h2 className="game-state">{gameState} </h2>
+      <h2>{message}</h2>
       <h1>
-        {players === undefined
-          ? 'Welcome - Waiting for opponent..'
-          : `Welcome ${players}!`}
+        {playerNames === undefined
+          ? "Welcome - Waiting for opponent.."
+          : `Welcome ${playerNames}!`}
       </h1>
-      <h4> {playerTurn ? 'Your turn..' : 'Opponents turn'} </h4>
+      <h4> {playerTurn ? "Your turn.." : "Opponents turn"} </h4>
       {/* <h4>Your are playing against: {message}</h4> */}
       {/* <div>Player 1: {playerOne} </div>
       <div>Player 2: {playerTwo}</div> */}
@@ -147,6 +173,19 @@ const Game = () => {
                 value={gameAlternative.value}
                 className="move-button"
                 onClick={() => {
+                  setGameStarted(true);
+                  {
+                    playerTurn
+                      ? _playTurn(gameAlternative.move)
+                      : alert("Not your turn..");
+                  }
+                  {
+                    playerTurn
+                      ? setImgPlayerOne(gameAlternative.img)
+                      : setImgPlayerTwo(gameAlternative.img);
+                  }
+
+                  //_playTurn(gameAlternative.move);
                   // playerTurn
                   //   ? _playTurn(gameAlternative.move)
                   //   : console.log('Not your turn..')
@@ -154,14 +193,12 @@ const Game = () => {
                   // playerTurn
                   //   ? _player(gameAlternative.move)
                   //   : _playerTwo(gameAlternative.move)
-                  // playerTurn
-                  //   ? setImgPlayerOne(gameAlternative.img)
-                  //   : setImgPlayerTwo(gameAlternative.img)
+
                   //handleResult(gameAlternative.move, RandomCpu())
                   //setImgPlayerOne(gameAlternative.img)
                 }}
               />
-            )
+            );
           })}
         </div>
       </div>
@@ -170,7 +207,7 @@ const Game = () => {
       </h3>
       <span className="game-background" />
     </div>
-  )
-}
+  );
+};
 
-export default Game
+export default Game;

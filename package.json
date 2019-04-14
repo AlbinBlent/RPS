@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^3.9.3",
     "express": "^4.16.4",
+    "nodemon": "^1.18.11",
     "react": "next",
     "react-dom": "next",
     "react-router-dom": "^4.3.1",
@@ -13,6 +14,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "run": "nodemon server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
