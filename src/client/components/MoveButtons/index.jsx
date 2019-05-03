@@ -18,7 +18,8 @@ const MoveButtons = props => {
     <Button
       variant="contained"
       color="secondary"
-      size="large"
+      size={props.size}
+      width={props.width}
       className={classes.button}
       onClick={props.onClick}
     >

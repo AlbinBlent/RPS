@@ -1,19 +1,30 @@
-.game {
-  position: fixed;
+.game-scene {
+  /* border: 1px solid rgb(0, 0, 0); */
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  align-items: left; /* center */
-  justify-content: left; /* center */
-  margin-top: 0rem;
+  align-items: center;
+  justify-content: center;
+}
+.game {
+  /* border: 1px solid rgb(0, 0, 0); */
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
-.game-alternatives {
-  position: fixed;
+.game-messaging {
+  width: 1000px;
+  height: 150px;
+  margin-top: 50px;
+  /*border: 1px solid rgb(0, 0, 0); */
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-top: 330px; /* 360 */
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .game-background {
@@ -29,11 +40,13 @@
 }
 
 .render-img {
+  /* border: 1px solid rgb(0, 0, 0); */
   width: 1350px;
+
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: left; /* center */
+  justify-content: center;
 }
 
 .player-image {
@@ -42,7 +55,7 @@
   width: 250px;
   margin: 10px;
   border: 2px black solid;
-  text-align: left; /* center */
+  text-align: left;
 }
 
 .secondplayer-image {
@@ -51,9 +64,8 @@
   width: 250px;
   margin: 10px;
   border: 2px black solid;
-  text-align: left; /* center */
+  text-align: left;
 }
-
 .player {
   margin-top: 1.5rem;
   margin-left: 1.5rem;
@@ -71,4 +83,14 @@
 .p2 {
   margin-top: 4rem;
   margin-left: 4rem;
+}
+
+.game-counters {
+  display: flex;
+  flex-direction: row;
+  width: 32rem;
+  height: 45px;
+  margin-top: 0rem;
+  justify-content: space-between;
+  align-items: center;
 }

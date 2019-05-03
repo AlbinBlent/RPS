@@ -1,0 +1,12 @@
+.game-lobby {
+  display: flex;
+  flex-direction: column;
+}
+.lobby-new-game {
+  display: flex;
+  flex-direction: column;
+}
+.lobby-join-game {
+  display: flex;
+  flex-direction: column;
+}
